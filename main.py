@@ -3,13 +3,14 @@ import pygame ,sys ,random
 
 from rakieta import rakieta
 from wybuch import wybuch
+from stanowisko import stanowisko
 
 width = 480
 height = 480
 
 pociski=[]
 wybuchy=[]
-
+stanowsika =[stanowisko(0), stanowisko(1), stanowisko(2)]
 kolory =[pygame.Color(0,255,0),pygame.Color(255,0,0), pygame.Color(255,255,0),
          pygame.Color(0,255,255), pygame.Color(255,0,255), pygame.Color(255,255,255),
          pygame.Color(0,0,255)]
@@ -23,8 +24,11 @@ def rysuj_mape():
     s.fill((0,0,0))
     w =height -50;
     pygame.draw.rect(s ,pygame.Color(255,255,0),( 0 ,height-30 ,width ,30))
-    pygame.draw.polygon(s, pygame.Color(255,255,0),
-                        [(width/2-20 ,w),(width/2+20 ,w),(width/2+40,height),(width/2-40,height)])
+    for ss in range(len(stanowsika)):
+        pygame.draw.polygon(s, pygame.Color(255,255,0),
+                        [(ss*width/2-20 +30 -(30*ss),w),(ss*width/2+20 +30-(30*ss),w),
+                         (ss*width/2+40+30 -(30*ss),height),(ss*width/2-40+30-(30*ss),height)])
+
 
     for p in pociski:
         if p.aktualnyy-p.koniecy<0.1:
@@ -55,9 +59,17 @@ def rysuj_mape():
     pygame.display.update()
     
 def strzal(x,y):
-    if x>height-31:
+    if y>height-81:
         return
-    pocisk = rakieta(width/2 ,height-50 , x,y)
+    start =x
+    if x<160:
+        start =30
+    elif x<321:
+        start = width/2
+    else:
+        start = width -30
+    
+    pocisk = rakieta(start ,height-50 , x,y)
     pociski.append(pocisk)
     
     
