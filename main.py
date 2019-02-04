@@ -4,6 +4,7 @@ import pygame ,sys ,random
 from rakieta import rakieta
 from wybuch import wybuch
 from stanowisko import stanowisko
+import math 
 
 width = 480
 height = 480
@@ -20,6 +21,8 @@ s=pygame.display.set_mode((height, width));
 pygame.display.set_caption('Missile Command');
 clock = pygame.time.Clock()
 
+pygame.mouse.set_cursor(*pygame.cursors.diamond)
+
 def rysuj_mape():
     s.fill((0,0,0))
     w =height -50;
@@ -31,15 +34,14 @@ def rysuj_mape():
 
 
     for p in pociski:
-        if p.aktualnyy-p.koniecy<0.1:
-            temp = wybuch(p.aktualnyx, p.aktualnyy)
-            wybuchy.append(temp)
-            pociski.remove(p)
-            del p
-            continue
         pygame.draw.line(s, pygame.Color(0,255,0) ,(p.startx ,p.starty ),(p.aktualnyx ,p.aktualnyy),1)
         pygame.draw.ellipse(s ,random.choice(kolory),
                         (p.aktualnyx-1.5 , p.aktualnyy-1.5 ,4 ,4), 0)
+        col =random.choice(kolory)
+        pygame.draw.line(s,col ,(p.koniecx-5 ,p.koniecy-5) ,
+                         (p.koniecx+5 ,p.koniecy+5) ,1)
+        pygame.draw.line(s,col ,(p.koniecx+5 ,p.koniecy-5) ,
+                         (p.koniecx-5 ,p.koniecy+5) ,1)
         p.ruch()
         
     for w in wybuchy:
@@ -71,10 +73,36 @@ def strzal(x,y):
     
     pocisk = rakieta(start ,height-50 , x,y)
     pociski.append(pocisk)
+
+def srodek(x , y ,wx ,wy ,r):
     
+    p = ((math.pow((x - wx), 2) // math.pow(r+1, 2)) + 
+         (math.pow((y - wy), 2) // math.pow(r+1, 2))) 
+  
+    return p
+    
+
+def kolizje():
+    for p in pociski:
+        if p.aktualnyy-p.koniecy<0.1:
+            temp = wybuch(p.aktualnyx, p.aktualnyy)
+            wybuchy.append(temp)
+            pociski.remove(p)
+            del p
+            continue
+        
+        for w in wybuchy:
+            if srodek(p.aktualnyx, p.aktualnyy ,w.pozx ,w.pozy ,w.klatka/60)<1:
+                temp = wybuch(p.aktualnyx, p.aktualnyy)
+                wybuchy.append(temp)
+                pociski.remove(p)
+                del p
+                break
+            
     
 def main():
      while True:
+        kolizje()
         rysuj_mape()
         for e in pygame.event.get():
                 if e.type == pygame.QUIT:
