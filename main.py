@@ -11,7 +11,8 @@ height = 480
 
 pociski=[]
 wybuchy=[]
-stanowsika =[stanowisko(0), stanowisko(1), stanowisko(2)]
+stanowiska =[stanowisko(0), stanowisko(1), stanowisko(2)]
+stanowiska_poz = [30 , width/2 , width-30]
 kolory =[pygame.Color(0,255,0),pygame.Color(255,0,0), pygame.Color(255,255,0),
          pygame.Color(0,255,255), pygame.Color(255,0,255), pygame.Color(255,255,255),
          pygame.Color(0,0,255)]
@@ -21,16 +22,37 @@ s=pygame.display.set_mode((height, width));
 pygame.display.set_caption('Missile Command');
 clock = pygame.time.Clock()
 
+rakieta_img =pygame.Surface((3,4))
 pygame.mouse.set_cursor(*pygame.cursors.diamond)
-
+def rysuj_rakieta():
+    kol = pygame.Color(0,0,255)
+    rakieta_img.fill((255,255,0))
+    rakieta_img.set_at((1, 0), kol)
+    rakieta_img.set_at((1, 1), kol)
+    rakieta_img.set_at((1, 2), kol)
+    rakieta_img.set_at((1, 3), kol)
+    rakieta_img.set_at((0, 3), kol)
+    rakieta_img.set_at((2, 3), kol)
+    rakieta_img.set_at((0, 4), kol)
+    rakieta_img.set_at((2, 4), kol)
 def rysuj_mape():
     s.fill((0,0,0))
     w =height -50;
     pygame.draw.rect(s ,pygame.Color(255,255,0),( 0 ,height-30 ,width ,30))
-    for ss in range(len(stanowsika)):
+    for ss in range(len(stanowiska)):
         pygame.draw.polygon(s, pygame.Color(255,255,0),
                         [(ss*width/2-20 +30 -(30*ss),w),(ss*width/2+20 +30-(30*ss),w),
                          (ss*width/2+40+30 -(30*ss),height),(ss*width/2-40+30-(30*ss),height)])
+        counter = stanowiska[ss].amunicja
+        poziom =1
+        while counter>0:
+            for j in range(poziom):
+                #s.blit(rakieta_img ,(stanowiska_poz[ss] +(poziom-j *3),height-50+(poziom*8 )))
+                pygame.draw.ellipse(s ,(0,0,255) ,(stanowiska_poz[ss]+8 -((poziom-2*j) *8),height-55+(poziom*10 ),5,5))
+                counter= counter-1
+                if counter==0:
+                    break
+            poziom= poziom+1
 
 
     for p in pociski:
@@ -59,19 +81,48 @@ def rysuj_mape():
                         (w.pozx-w.klatka/60 ,w.pozy-w.klatka/60 ,w.klatka/30 ,w.klatka/30), 0)
         
     pygame.display.update()
+def z_ktorego(x ,y):
+    minimum_x =10
+    y1= height-50
+    dy =y-y1
+    minimum =100000
+    if stanowiska[0].amunicja >0:
+        x1=30
+        dx=x1-x
+        temp =  math.sqrt(dx*dx + dy*dy)
+        if temp <minimum:
+            minimum=temp
+            minimum_x=x1
+    if stanowiska[1].amunicja >0:
+        x1=width/2
+        dx=x1-x
+        temp =  math.sqrt(dx*dx + dy*dy)
+        if temp <minimum:
+            minimum=temp
+            minimum_x=x1
+    if stanowiska[2].amunicja >0:
+        x1=width-30
+        dx=x1-x
+        temp =  math.sqrt(dx*dx + dy*dy)
+        if temp <minimum:
+            minimum=temp
+            minimum_x=x1
+    return minimum_x
     
 def strzal(x,y):
     if y>height-81:
         return
-    start =x
-    if x<160:
-        start =30
-    elif x<321:
-        start = width/2
-    else:
-        start = width -30
     
-    pocisk = rakieta(start ,height-50 , x,y)
+    ktore = z_ktorego(x,y)
+    if ktore==30:
+        stanowiska[0].amunicja -=1
+    elif ktore==width/2:
+        stanowiska[1].amunicja -=1
+    elif ktore==width-30:
+        stanowiska[2].amunicja -=1
+    else:
+        return
+    pocisk = rakieta(ktore ,height-50 , x,y)
     pociski.append(pocisk)
 
 def srodek(x , y ,wx ,wy ,r):
@@ -112,5 +163,5 @@ def main():
                     strzal(x,y)
      clock.tick(60)
 
-
+rysuj_rakieta()
 main()
