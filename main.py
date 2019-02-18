@@ -8,9 +8,13 @@ import math
 
 width = 480
 height = 480
-
+level=0
+pozycje = [35 ,90, 130 ,170 ,210 ,240, 445]
+pociski_wroga=[]
+punkty=0
 pociski=[]
 wybuchy=[]
+domy =[True , True, True, True , True , True]
 stanowiska =[stanowisko(0), stanowisko(1), stanowisko(2)]
 stanowiska_poz = [30 , width/2 , width-30]
 kolory =[pygame.Color(0,255,0),pygame.Color(255,0,0), pygame.Color(255,255,0),
@@ -37,7 +41,7 @@ def rysuj_rakieta():
     rakieta_img.set_at((2, 4), kol)
 def rysuj_mape():
     s.fill((0,0,0))
-    w =height -50;
+    w =height -50
     pygame.draw.rect(s ,pygame.Color(255,255,0),( 0 ,height-30 ,width ,30))
     for ss in range(len(stanowiska)):
         pygame.draw.polygon(s, pygame.Color(255,255,0),
@@ -53,8 +57,12 @@ def rysuj_mape():
                 if counter==0:
                     break
             poziom= poziom+1
-
-
+    trzy=1
+    for i in range(len(domy)):
+        pygame.draw.rect(s,pygame.Color(0,0,255),((i+trzy)*50 +30,height-40,20,20))
+        if((i+1)%3==0):
+            trzy=trzy+1
+        
     for p in pociski:
         pygame.draw.line(s, pygame.Color(0,255,0) ,(p.startx ,p.starty ),(p.aktualnyx ,p.aktualnyy),1)
         pygame.draw.ellipse(s ,random.choice(kolory),
@@ -64,6 +72,13 @@ def rysuj_mape():
                          (p.koniecx+5 ,p.koniecy+5) ,1)
         pygame.draw.line(s,col ,(p.koniecx+5 ,p.koniecy-5) ,
                          (p.koniecx-5 ,p.koniecy+5) ,1)
+        p.ruch()
+        
+    for p in pociski_wroga:
+        pygame.draw.line(s, pygame.Color(255,0,0) ,(p.startx ,p.starty ),(p.aktualnyx ,p.aktualnyy),1)
+        pygame.draw.ellipse(s ,random.choice(kolory),
+                        (p.aktualnyx-1.5 , p.aktualnyy-1.5 ,4 ,4), 0)
+
         p.ruch()
         
     for w in wybuchy:
@@ -122,7 +137,7 @@ def strzal(x,y):
         stanowiska[2].amunicja -=1
     else:
         return
-    pocisk = rakieta(ktore ,height-50 , x,y)
+    pocisk = rakieta(ktore ,height-50 , x,y ,0.2 ,0)
     pociski.append(pocisk)
 
 def srodek(x , y ,wx ,wy ,r):
@@ -149,12 +164,36 @@ def kolizje():
                 pociski.remove(p)
                 del p
                 break
-            
+    for p in pociski_wroga:
+        if p.aktualnyy-p.koniecy>-0.1:
+            temp = wybuch(p.aktualnyx, p.aktualnyy)
+            wybuchy.append(temp)
+            pociski_wroga.remove(p)
+            del p
+            continue
+        
+        for w in wybuchy:
+            if srodek(p.aktualnyx, p.aktualnyy ,w.pozx ,w.pozy ,w.klatka/60)<1:
+                temp = wybuch(p.aktualnyx, p.aktualnyy)
+                wybuchy.append(temp)
+                pociski_wroga.remove(p)
+                del p
+                break
+def level():
+    if not pociski_wroga:
+        stanowiska[0].amunicja=10
+        stanowiska[1].amunicja=10
+        stanowiska[2].amunicja=10
+        for i in range(10):
+            temp = rakieta(random.randrange(width) ,0
+            , random.choice(pozycje) ,height-30 , 0.04, random.randrange(4000))
+            pociski_wroga.append(temp)
     
 def main():
      while True:
         kolizje()
         rysuj_mape()
+        level()
         for e in pygame.event.get():
                 if e.type == pygame.QUIT:
                     sys.exit(0)
