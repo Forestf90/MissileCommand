@@ -22,22 +22,27 @@ kolory =[pygame.Color(0,255,0),pygame.Color(255,0,0), pygame.Color(255,255,0),
          pygame.Color(0,255,255), pygame.Color(255,0,255), pygame.Color(255,255,255),
          pygame.Color(0,0,255)]
 
-pygame.init();
-s=pygame.display.set_mode((height, width));
-pygame.display.set_caption('Missile Command');
+pygame.init()
+s=pygame.display.set_mode((height, width))
+pygame.display.set_caption('Missile Command')
 clock = pygame.time.Clock()
 
-
+tlo=pygame.display.set_mode((height, width))
+def rys_tlo():
+    w =height -50
+    tlo.fill((0,0,0))
+    pygame.draw.rect(tlo ,pygame.Color(255,255,0),( 0 ,height-30 ,width ,30))
+    for ss in range(len(stanowiska)):
+            pygame.draw.polygon(tlo, pygame.Color(255,255,0),
+                            [(ss*width/2-20 +30 -(30*ss),w),(ss*width/2+20 +30-(30*ss),w),
+                             (ss*width/2+40+30 -(30*ss),height),(ss*width/2-40+30-(30*ss),height)])
 pygame.mouse.set_cursor(*pygame.cursors.diamond)
 
 def rysuj_mape():
+    #s.fill((0,0,0))
     s.fill((0,0,0))
-    w =height -50
-    pygame.draw.rect(s ,pygame.Color(255,255,0),( 0 ,height-30 ,width ,30))
+    s.blit(tlo, (0,0))
     for ss in range(len(stanowiska)):
-        pygame.draw.polygon(s, pygame.Color(255,255,0),
-                        [(ss*width/2-20 +30 -(30*ss),w),(ss*width/2+20 +30-(30*ss),w),
-                         (ss*width/2+40+30 -(30*ss),height),(ss*width/2-40+30-(30*ss),height)])
         counter = stanowiska[ss].amunicja
         poziom =1
         while counter>0:
@@ -84,8 +89,7 @@ def rysuj_mape():
         else:
             w.klatka+=1
         pygame.draw.ellipse(s ,random.choice(kolory),
-                        (w.pozx-w.klatka/60 ,w.pozy-w.klatka/60 ,w.klatka/30 ,w.klatka/30), 0)
-        
+                        (w.pozx-w.klatka/60 ,w.pozy-w.klatka/60 ,w.klatka/30 ,w.klatka/30), 0)     
     pygame.display.update()
 def z_ktorego(x ,y):
     minimum_x =10
@@ -191,6 +195,8 @@ def kolizje():
                 break
 def level():
     if not pociski_wroga:
+        global punkty
+        punkty= punkty+10
         stanowiska[0].amunicja=10
         stanowiska[1].amunicja=10
         stanowiska[2].amunicja=10
@@ -199,6 +205,7 @@ def level():
             , random.choice(pozycje) ,height-30 , 0.04, random.randrange(4000))
             pociski_wroga.append(temp)
 def przegrana():
+    global punkty
     for i in domy:
         if i==True:
             return
@@ -214,7 +221,7 @@ def przegrana():
     s.blit(textSurface, TextRect)
     
     pygame.display.update()
-    global punkty
+    #global punkty
     while True:
         for event in pygame.event.get():
             #print(event)
@@ -248,4 +255,5 @@ def main():
                     strzal(x,y)
      clock.tick(60)
 
+rys_tlo()
 main()
