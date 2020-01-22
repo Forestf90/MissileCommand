@@ -17,19 +17,22 @@ pygame.mouse.set_cursor(*pygame.cursors.diamond)
 INFO = pygame.display.Info()
 
 
-WIDTH = int(INFO.current_h * 0.4)
-HEIGHT = int(INFO.current_h * 0.4)
+WIDTH = int(INFO.current_h * 0.5)
+HEIGHT = int(INFO.current_h * 0.5)
 
-GROUND_HEIGHT = int(HEIGHT / 20)
-SHELTER_HEIGHT = int(HEIGHT / 15)
+GROUND_HEIGHT = int(HEIGHT / 15)
+SHELTER_HEIGHT = int(HEIGHT / 10)
 
 s = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Missile Command')
 clock = pygame.time.Clock()
 
 level = 0
-shelter_positions = [35, 90, 140, 190, 240, 290, 340, 390, 445]
-#shelter_positions = [35, width/9, width/9 *2, width/9 *3, 240, 290, 340, 390, 445]
+#shelter_positions = [35, 90, 140, 190, 240, 290, 340, 390, 445]
+half = WIDTH/18
+shelter_positions = [WIDTH/9 - half, 2*WIDTH/9 - half, 3*WIDTH/9 - half, 4*WIDTH/9 - half, 5*WIDTH/9 - half,
+                     6*WIDTH/9 - half, 7*WIDTH/9 - half, 8*WIDTH/9 - half, 9*WIDTH/9 - half]
+
 enemy_missiles = []
 points = 0
 player_missiles = []
@@ -54,7 +57,7 @@ def draw():
         number = 1
         while counter > 0:
             for j in range(number):
-                pygame.draw.ellipse(s, (0, 0, 255), (launcher_positions[ss] + GROUND_HEIGHT/((ss+1)*2) - ((number - 2 * j) * 8), HEIGHT - 55 + (number * 10), 5, 5))
+                pygame.draw.ellipse(s, (0, 0, 255), (launcher_positions[ss] + GROUND_HEIGHT/8 - ((number - 2 * j) * 6), HEIGHT - SHELTER_HEIGHT + ((number-1) * 8), 5, 5))
                 counter = counter-1
                 if counter == 0:
                     break
@@ -62,7 +65,7 @@ def draw():
     launcher_pos = 1
     for i in range(len(shelter)):
         if shelter[i]:
-            pygame.draw.rect(s, pygame.Color(0, 0, 255), ((i+launcher_pos) * WIDTH/9 + SHELTER_HEIGHT/2, HEIGHT - SHELTER_HEIGHT, SHELTER_HEIGHT, SHELTER_HEIGHT/3))
+            pygame.draw.rect(s, pygame.Color(0, 0, 255), ((i+launcher_pos) * WIDTH/9 + SHELTER_HEIGHT/4, HEIGHT - GROUND_HEIGHT*1.2, SHELTER_HEIGHT/2, SHELTER_HEIGHT/3))
         if (i + 1) % 3 == 0:
             launcher_pos = launcher_pos+1
         
@@ -131,7 +134,7 @@ def designate_launcher(x, y):
 
 
 def launch_rocket(x, y):
-    if y > HEIGHT-81:
+    if y > HEIGHT-SHELTER_HEIGHT*1.4:
         return
     
     launcher_position = designate_launcher(x, y)
@@ -211,6 +214,8 @@ def new_level():
         launcher_list[1].ammo = 10
         launcher_list[2].ammo = 10
         explosion_list.clear()
+        global points
+        points += 1
         for i in range(10):
             temp = Missile(random.randrange(WIDTH), 0,
                            random.choice(shelter_positions), HEIGHT - 30, 0.04, random.randrange(4000))
@@ -226,8 +231,8 @@ def lose():
     del enemy_missiles[:]
     global points
     draw()
-    large_text = pygame.font.SysFont("consolas", int(HEIGHT * 0.05))
-    text_surface = large_text.render("Scored points : " + str(points) +
+    large_text = pygame.font.SysFont("consolas", int(HEIGHT * 0.035))
+    text_surface = large_text.render("Survived waves : " + str(points) +
                                      " Press space to start again", True, (255, 0, 0))
     text_rect = text_surface.get_rect()
     text_rect.center = ((WIDTH / 2), (HEIGHT / 2))
