@@ -28,7 +28,7 @@ pygame.display.set_caption('Missile Command')
 clock = pygame.time.Clock()
 
 level = 0
-#shelter_positions = [35, 90, 140, 190, 240, 290, 340, 390, 445]
+
 half = WIDTH/18
 shelter_positions = [WIDTH/9 - half, 2*WIDTH/9 - half, 3*WIDTH/9 - half, 4*WIDTH/9 - half, 5*WIDTH/9 - half,
                      6*WIDTH/9 - half, 7*WIDTH/9 - half, 8*WIDTH/9 - half, 9*WIDTH/9 - half]
@@ -271,7 +271,7 @@ def main():
             elif e.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
                 launch_rocket(x, y)
-#        clock.tick(120)
+        #clock.tick(100)
 
 
 main()
