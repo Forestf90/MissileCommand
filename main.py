@@ -39,7 +39,9 @@ player_missiles = []
 explosion_list = []
 shelter = [True, True, True, True, True, True]
 launcher_list = [Launcher(0), Launcher(1), Launcher(2)]
-launcher_positions = [30, WIDTH / 2, WIDTH - 30]
+#launcher_positions = [30, WIDTH / 2, WIDTH - 30]
+launcher_positions = [WIDTH/9 - half, 5*WIDTH/9 - half, 9*WIDTH/9 - half]
+
 colors_list = [pygame.Color(0, 255, 0), pygame.Color(255, 0, 0), pygame.Color(255, 255, 0),
                pygame.Color(0, 255, 255), pygame.Color(255, 0, 255), pygame.Color(255, 255, 255),
                pygame.Color(0, 0, 255)]
@@ -51,13 +53,13 @@ def draw():
     pygame.draw.rect(s, pygame.Color(255, 255, 0), (0, HEIGHT - GROUND_HEIGHT, WIDTH, GROUND_HEIGHT))
     for ss in range(len(launcher_list)):
         pygame.draw.polygon(s, pygame.Color(255, 255, 0),
-                            [(ss * WIDTH / 2 - 20 + GROUND_HEIGHT - (GROUND_HEIGHT * ss), w), (ss * WIDTH / 2 + 20 + GROUND_HEIGHT - (GROUND_HEIGHT * ss), w),
-                             (ss * WIDTH / 2 + 40 + GROUND_HEIGHT - (GROUND_HEIGHT * ss), HEIGHT), (ss * WIDTH / 2 - 40 + GROUND_HEIGHT - (GROUND_HEIGHT * ss), HEIGHT)])
+                            [(ss * WIDTH / 2 - SHELTER_HEIGHT/2 + GROUND_HEIGHT - (GROUND_HEIGHT * ss), w), (ss * WIDTH / 2 + SHELTER_HEIGHT/2 + GROUND_HEIGHT - (GROUND_HEIGHT * ss), w),
+                             (ss * WIDTH / 2 + SHELTER_HEIGHT + GROUND_HEIGHT - (GROUND_HEIGHT * ss), HEIGHT), (ss * WIDTH / 2 - SHELTER_HEIGHT + GROUND_HEIGHT - (GROUND_HEIGHT * ss), HEIGHT)])
         counter = launcher_list[ss].ammo
         number = 1
         while counter > 0:
             for j in range(number):
-                pygame.draw.ellipse(s, (0, 0, 255), (launcher_positions[ss] + GROUND_HEIGHT/8 - ((number - 2 * j) * 6), HEIGHT - SHELTER_HEIGHT + ((number-1) * 8), 5, 5))
+                pygame.draw.ellipse(s, (0, 0, 255), (launcher_positions[ss] - ((number - 2 * j) * WIDTH/100) + WIDTH/200, HEIGHT - SHELTER_HEIGHT + ((number-1) * WIDTH/100), WIDTH/100, WIDTH/100))
                 counter = counter-1
                 if counter == 0:
                     break
@@ -110,21 +112,21 @@ def designate_launcher(x, y):
     dy = y-y1
     minimum = 100000
     if launcher_list[0].ammo > 0:
-        x1 = 30
+        x1 = launcher_positions[0]
         dx = x1-x
         temp = math.sqrt(dx*dx + dy*dy)
         if temp < minimum:
             minimum = temp
             minimum_x = x1
     if launcher_list[1].ammo > 0:
-        x1 = WIDTH / 2
+        x1 = launcher_positions[1]
         dx = x1-x
         temp = math.sqrt(dx*dx + dy*dy)
         if temp < minimum:
             minimum = temp
             minimum_x = x1
     if launcher_list[2].ammo > 0:
-        x1 = WIDTH - 30
+        x1 = launcher_positions[2]
         dx = x1-x
         temp = math.sqrt(dx*dx + dy*dy)
         if temp < minimum:
@@ -138,15 +140,15 @@ def launch_rocket(x, y):
         return
     
     launcher_position = designate_launcher(x, y)
-    if launcher_position == 30:
+    if launcher_position == launcher_positions[0]:
         launcher_list[0].ammo -= 1
-    elif launcher_position == WIDTH/2:
+    elif launcher_position == launcher_positions[1]:
         launcher_list[1].ammo -= 1
-    elif launcher_position == WIDTH-30:
+    elif launcher_position == launcher_positions[2]:
         launcher_list[2].ammo -= 1
     else:
         return
-    player_missiles.append(Missile(launcher_position, HEIGHT - 50, x, y, 0.2, 0))
+    player_missiles.append(Missile(launcher_position, HEIGHT - SHELTER_HEIGHT, x, y, 0.2, 0))
 
 
 def middle_point(x, y, wx, wy, r):
@@ -218,7 +220,7 @@ def new_level():
         points += 1
         for i in range(10):
             temp = Missile(random.randrange(WIDTH), 0,
-                           random.choice(shelter_positions), HEIGHT - 30, 0.04, random.randrange(4000))
+                           random.choice(shelter_positions), HEIGHT - GROUND_HEIGHT, 0.04, random.randrange(4000))
             enemy_missiles.append(temp)
 
 
